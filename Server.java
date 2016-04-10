@@ -54,6 +54,8 @@ public class Server {
 		scores = new int[2];
 		rng = new Random();
 		// Main game loop
+		// For each cycle of turns, if the sum of return values from TakeTurn is 2 or above, the game has reached
+		// a terminal state, and a winner can be crowned.
 		gameloop:
 		while (true) {
 			int gameState = 0;
@@ -68,7 +70,7 @@ public class Server {
 		System.out.println("Game Over!");
 		
 		try{
-			// Determine the winning player. Variable "winner" will be 0 if no bust has occurred.
+			// Determine who won.
 			String winner;
 			if (scores[0] == scores[1])
 				winner = "It's a tie!";
@@ -94,6 +96,7 @@ public class Server {
 			for (DataOutputStream writer : writers)
 				writer.writeUTF(results);	
 			
+			// Close sockets/IO streams.
 			for (int i = 0; i < 2; i++){
 				writers[i].close();
 				readers[i].close();
@@ -109,7 +112,10 @@ public class Server {
 	}
 	
 	/*
-	 * The server will guide a player through their turn.
+	 * A player takes their turn. 
+	 * First, their score is displayed to them. (And the other player is told to wait)
+	 * Next, after the player takes a valid action, their updated score is shown and the turn ends.
+	 * The return value indicates the state of the game, with 2 being a terminal state. (see above game loop)
 	 */
 	public static int TakeTurn(int playerIndex){
 		

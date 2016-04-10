@@ -28,7 +28,8 @@ public class Client {
 		while (true){
 			String message = null;
 			try{
-				// Turn has begun. Either ask player for input or tell them to wait for other player. The server can also inform the player the game has ended.
+				// Turn has begun. Either ask player for input or tell them to wait for other player.
+				// The server can also inform the player the game has ended.
 				do {
 					message = reader.readUTF();
 					System.out.println(message);
