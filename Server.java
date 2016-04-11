@@ -53,18 +53,20 @@ public class Server {
 		
 		scores = new int[2];
 		rng = new Random();
+		int gameState = 0;
 		// Main game loop
 		// For each cycle of turns, if the sum of return values from TakeTurn is 2 or above, the game has reached
 		// a terminal state, and a winner can be crowned.
 		gameloop:
 		while (true) {
-			int gameState = 0;
 			for (int i = 0; i < 2; i++){
 				gameState += TakeTurn(i);
 				System.out.println(String.format("Player %1d's score is %2d.", i + 1, scores[i]));
 				// Check if game is at a terminal state (Bust or both players standing)
-				if (gameState >= 2)
+				if (gameState >= 3)
 					break gameloop;
+				else if (gameState > 0)
+					gameState--;
 			}
 		}
 		
@@ -127,11 +129,11 @@ public class Server {
 		writers[playerIndex].writeUTF(String.format("Your current score is %1d. Do you choose to (h)it or (s)tand?", scores[playerIndex]));
 		
 		// Inform the other player that this player is taking their turn.
-		writers[otherPlayerIndex].writeUTF(String.format("Waiting on player %1d", playerIndex + 1));
+		writers[otherPlayerIndex].writeUTF(String.format("Waiting on player %1d...", playerIndex + 1));
 		
 		// Wait on player to decide to hit or stand.
 		String playerAction = readers[playerIndex].readUTF();
-		System.out.println(String.format("Received '%1s' from Player %2d", playerAction, playerIndex + 1));
+		System.out.println(String.format("Received '%1s' from Player %2d.", playerAction, playerIndex + 1));
 		
 		if (playerAction.equalsIgnoreCase("h")){
 			// Draw a card. If the card has a value greater than 10, set it to 10.
@@ -139,21 +141,21 @@ public class Server {
 			scores[playerIndex] += card;
 			
 			// Player has chosen to hit. Tell them their new score.
-			writers[playerIndex].writeUTF("Chose to hit... Your score is now " + scores[playerIndex]);
+			writers[playerIndex].writeUTF(String.format("Chose to hit... Drew a %1d!\nYour score is now %2d.", card ,scores[playerIndex]));
 			writers[otherPlayerIndex].writeUTF(String.format("Player %1d chose to hit.", playerIndex + 1));
 			
 			// Check for bust.
 			if (scores[playerIndex] > 21){
 				System.out.println(String.format("Player %1d busted!", playerIndex + 1));
-				return 2;
+				return 3;
 			}
 			
 		} else {
 			// Player has chosen to stand.
-			writers[playerIndex].writeUTF("Chose to stand... Your score remains at " + scores[playerIndex]);
+			writers[playerIndex].writeUTF(String.format("Chose to stand... Your score remains at %1d.", scores[playerIndex]));
 			// Inform the other player of this action.
 			writers[otherPlayerIndex].writeUTF(String.format("Player %1d chose to stand.", playerIndex + 1));
-			return 1;
+			return 2;
 		}
 		
 		} catch (IOException e){
