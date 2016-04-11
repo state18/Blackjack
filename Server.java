@@ -61,13 +61,12 @@ public class Server {
 			int gameState = 0;
 			for (int i = 0; i < 2; i++){
 				gameState += TakeTurn(i);
+				System.out.println(String.format("Player %1d's score is %2d.", i + 1, scores[i]));
 				// Check if game is at a terminal state (Bust or both players standing)
 				if (gameState >= 2)
 					break gameloop;
 			}
 		}
-		
-		System.out.println("Game Over!");
 		
 		try{
 			// Determine who won.
